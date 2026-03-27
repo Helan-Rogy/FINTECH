@@ -1,0 +1,25 @@
+{
+  "input_csv": "data/raw/synthetic_transactions.csv",
+  "delimiter": ",",
+  "encoding": "utf-8",
+  "columns": {
+    "txn_id": null,
+    "user_id": "customer_id",
+    "ts": "timestamp",
+    "amount": "amount",
+    "merchant_cat": "merchant_category",
+    "merchant_id": "merchant_id",
+    "city": "city",
+    "country": "country",
+    "device_id": "device_id"
+  },
+  "defaults": {
+    "merchant_cat": "UNKNOWN",
+    "merchant_id": "UNKNOWN",
+    "city": "",
+    "country": "UNKNOWN",
+    "device_id": ""
+  },
+  "ts_format_hint": null,
+  "amount_abs": false
+}
