@@ -14,6 +14,7 @@ Prepare clean, repeatable datasets for fraud and risk modeling.
 - `data/processed/transactions_full.csv`
 - `data/processed/transactions_sample.csv`
 - `data/processed/risk_dataset.csv`
+- `data/processed/risk_dataset_sample.csv`
 - ETL scripts + mapping configs in `scripts/` and `config/`
 
 ## Exit Criteria

@@ -1,0 +1,14 @@
+{
+  "input_csv": "data/raw/synthetic_risk.csv",
+  "delimiter": ",",
+  "encoding": "utf-8",
+  "label_column": "defaulted",
+  "id_column": null,
+  "feature_columns": {
+    "income_monthly": "income_monthly",
+    "employment_years": "employment_years",
+    "credit_history_months": "credit_history_months",
+    "avg_monthly_spend": "avg_monthly_spend",
+    "late_payments_12m": "late_payments_12m"
+  }
+}
