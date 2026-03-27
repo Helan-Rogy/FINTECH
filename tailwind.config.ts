@@ -30,8 +30,8 @@ const config: Config = {
         DEFAULT: "var(--radius)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        mono: ["var(--font-mono)"],
+        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains)", "JetBrains Mono", "monospace"],
       },
     },
   },

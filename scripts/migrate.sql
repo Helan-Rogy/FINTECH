@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
 -- Seed demo users (passwords are bcrypt of 'demo-password')
 -- Using a well-known bcrypt hash for 'demo-password' for seeding purposes
 INSERT INTO users (id, email, password_hash, role) VALUES
-  ('u_00001', 'user@demo.com',    '$2b$10$9xGoRm7QGk1Ax4WlQHxrMeodP/vp4aLkTEzgqvBnPeYRpFVGBe8oq', 'user'),
-  ('u_00010', 'analyst@demo.com', '$2b$10$9xGoRm7QGk1Ax4WlQHxrMeodP/vp4aLkTEzgqvBnPeYRpFVGBe8oq', 'analyst'),
-  ('u_00099', 'admin@demo.com',   '$2b$10$9xGoRm7QGk1Ax4WlQHxrMeodP/vp4aLkTEzgqvBnPeYRpFVGBe8oq', 'admin')
+  ('u_00001', 'user@demo.com',    '$2b$10$3OhRi.2bkygehpQ1W1A8T.QUaAgBHybiItcGVS79g4E5QrhCkB0ly', 'user'),
+  ('u_00010', 'analyst@demo.com', '$2b$10$3OhRi.2bkygehpQ1W1A8T.QUaAgBHybiItcGVS79g4E5QrhCkB0ly', 'analyst'),
+  ('u_00099', 'admin@demo.com',   '$2b$10$3OhRi.2bkygehpQ1W1A8T.QUaAgBHybiItcGVS79g4E5QrhCkB0ly', 'admin')
 ON CONFLICT (id) DO NOTHING;
