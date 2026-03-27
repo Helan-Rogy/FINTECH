@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 0.5rem;
+
+  /* Core palette — dark finance theme */
+  --background:        #0f1117;
+  --foreground:        #e8eaf0;
+
+  --card:              #171b26;
+  --card-foreground:   #e8eaf0;
+
+  --border:            #272d3d;
+  --muted:             #1e2334;
+  --muted-foreground:  #6b7494;
+
+  --primary:           #3d7cff;
+  --primary-foreground:#ffffff;
+
+  --accent:            #00c896;
+  --accent-foreground: #0f1117;
+
+  --destructive:       #f05252;
+  --success:           #00c896;
+  --warning:           #f59e0b;
+
+  --sidebar:           #13161f;
+  --sidebar-foreground:#b0b8d0;
+  --sidebar-border:    #1e2334;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--muted); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
