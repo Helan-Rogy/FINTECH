@@ -90,7 +90,7 @@ export default function RiskScorePage() {
     <>
       <PageHeader
         title="Credit Risk Scoring"
-        description="Evaluate a subject&apos;s credit risk profile from financial indicators."
+        description="Evaluate a subject's credit risk profile from financial indicators."
       />
 
       <div className="grid md:grid-cols-2 gap-6">

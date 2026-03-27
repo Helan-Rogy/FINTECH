@@ -115,24 +115,23 @@ export async function POST(req: NextRequest) {
   let answer: string;
   let source: "faq" | "context" | "fallback";
 
-  // 1. Try context-aware explanation
-  if (context_type === "fraud" && context_data) {
+  // 1. Always try FAQ match first — covers generic questions on any page
+  const faq = matchFaq(q);
+  if (faq) {
+    answer = faq;
+    source = "faq";
+  } else if (context_type === "fraud" && context_data) {
+    // 2. Context-aware fraud explanation
     answer = explainFraudReport(context_data);
     source = "context";
   } else if (context_type === "risk" && context_data) {
+    // 3. Context-aware risk explanation
     answer = explainRiskReport(context_data);
     source = "context";
   } else {
-    // 2. Try FAQ match
-    const faq = matchFaq(q);
-    if (faq) {
-      answer = faq;
-      source = "faq";
-    } else {
-      // 3. Keyword fallback
-      answer = generateFallback(q);
-      source = "fallback";
-    }
+    // 4. Keyword fallback
+    answer = generateFallback(q);
+    source = "fallback";
   }
 
   return NextResponse.json({ answer, source, question: q });
