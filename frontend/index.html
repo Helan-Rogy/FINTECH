@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudShield - Fraud & Risk Detection</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+    /* Login */
+    #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-card { background: #1e293b; border-radius: 12px; padding: 40px; width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .login-card h1 { font-size: 1.8rem; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+    .login-card p { color: #94a3b8; margin-bottom: 28px; font-size: 0.9rem; }
+    .role-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .role-btn { padding: 14px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600; text-align: left; transition: all 0.2s; }
+    .role-btn.user { background: #1d4ed8; color: white; }
+    .role-btn.analyst { background: #7c3aed; color: white; }
+    .role-btn.admin { background: #0f766e; color: white; }
+    .role-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .role-hint { font-size: 0.78rem; opacity: 0.75; display: block; margin-top: 2px; }
+
+    /* App shell */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+    header { background: #1e293b; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 10; }
+    .logo { font-size: 1.2rem; font-weight: 700; color: #38bdf8; }
+    .user-info { font-size: 0.85rem; color: #94a3b8; display: flex; align-items: center; gap: 12px; }
+    .role-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .role-badge.user { background: #1e3a8a; color: #93c5fd; }
+    .role-badge.analyst { background: #3b0764; color: #d8b4fe; }
+    .role-badge.admin { background: #134e4a; color: #5eead4; }
+    .logout-btn { background: none; border: 1px solid #475569; color: #94a3b8; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; }
+    .logout-btn:hover { border-color: #94a3b8; color: #e2e8f0; }
+
+    nav { display: flex; gap: 4px; padding: 0 4px; }
+    .nav-btn { background: none; border: none; padding: 8px 14px; color: #94a3b8; cursor: pointer; font-size: 0.88rem; border-radius: 6px; transition: all 0.15s; }
+    .nav-btn:hover, .nav-btn.active { background: #334155; color: #f1f5f9; }
+
+    main { flex: 1; padding: 28px 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+    /* Panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+    h2 { font-size: 1.4rem; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; }
+    .subtitle { color: #64748b; font-size: 0.88rem; margin-bottom: 24px; }
+
+    /* Stats cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: #1e293b; border-radius: 10px; padding: 20px; border: 1px solid #334155; }
+    .stat-card .label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #f1f5f9; }
+    .stat-card .value.red { color: #f87171; }
+    .stat-card .value.yellow { color: #fbbf24; }
+    .stat-card .value.green { color: #34d399; }
+
+    /* Action section */
+    .action-section { background: #1e293b; border-radius: 10px; border: 1px solid #334155; padding: 24px; margin-bottom: 24px; }
+    .action-section h3 { font-size: 1rem; font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
+    .action-section p { color: #64748b; font-size: 0.85rem; margin-bottom: 18px; }
+    .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: #059669; color: white; }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-outline { background: transparent; border: 1px solid #475569; color: #94a3b8; }
+    .btn-outline:hover { border-color: #94a3b8; color: #f1f5f9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Loading */
+    .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results table */
+    .results-section { margin-top: 24px; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .results-header h3 { font-size: 1rem; font-weight: 600; color: #f1f5f9; }
+    .summary-pills { display: flex; gap: 8px; }
+    .pill { padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .pill.high { background: #7f1d1d; color: #fca5a5; }
+    .pill.medium { background: #78350f; color: #fcd34d; }
+    .pill.low { background: #14532d; color: #86efac; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #0f172a; padding: 10px 14px; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 1px solid #334155; }
+    td { padding: 12px 14px; border-bottom: 1px solid #1e293b; font-size: 0.88rem; }
+    tr:hover td { background: #1e293b; }
+    .band-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .band-badge.high { background: #7f1d1d; color: #fca5a5; }
+    .band-badge.medium { background: #78350f; color: #fcd34d; }
+    .band-badge.low { background: #14532d; color: #86efac; }
+
+    /* Score bar */
+    .score-bar { display: flex; align-items: center; gap: 8px; }
+    .score-bar-track { flex: 1; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+    .score-bar-fill.high { background: #ef4444; }
+    .score-bar-fill.medium { background: #f59e0b; }
+    .score-bar-fill.low { background: #10b981; }
+    .score-val { font-size: 0.82rem; color: #94a3b8; min-width: 38px; text-align: right; }
+
+    /* Expand row */
+    .expand-btn { background: none; border: none; cursor: pointer; color: #64748b; font-size: 0.82rem; padding: 2px 8px; border-radius: 4px; }
+    .expand-btn:hover { color: #94a3b8; background: #334155; }
+    .detail-row td { background: #0f172a; padding: 16px 24px; }
+    .explanation-box { background: #1e293b; border-radius: 8px; padding: 16px; border-left: 3px solid #3b82f6; }
+    .explanation-box h4 { font-size: 0.85rem; font-weight: 600; color: #93c5fd; margin-bottom: 8px; }
+    .explanation-box p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; white-space: pre-wrap; }
+    .reason-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .reason-tag { padding: 3px 8px; background: #0f172a; border-radius: 4px; font-size: 0.75rem; color: #94a3b8; border: 1px solid #334155; }
+    .reason-tag.CRITICAL { border-color: #ef4444; color: #fca5a5; }
+    .reason-tag.HIGH { border-color: #f59e0b; color: #fcd34d; }
+    .reason-tag.MEDIUM { border-color: #3b82f6; color: #93c5fd; }
+    .action-list { margin-top: 10px; }
+    .action-list li { font-size: 0.82rem; color: #94a3b8; padding: 3px 0; list-style: none; padding-left: 14px; position: relative; }
+    .action-list li::before { content: '→'; position: absolute; left: 0; color: #3b82f6; }
+
+    /* Cases */
+    .cases-filters { display: flex; gap: 8px; margin-bottom: 20px; }
+    .filter-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid #334155; background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.82rem; }
+    .filter-btn.active { background: #334155; color: #f1f5f9; }
+    .decision-form { display: flex; flex-direction: column; gap: 10px; }
+    .decision-form textarea { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; color: #e2e8f0; font-size: 0.85rem; resize: vertical; min-height: 70px; }
+    .decision-form textarea:focus { outline: none; border-color: #3b82f6; }
+    .decision-btns { display: flex; gap: 8px; }
+    .btn-approve { background: #065f46; color: #6ee7b7; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+    .btn-approve:hover { background: #047857; }
+    .btn-escalate { background: #78350f; color: #fcd34d; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+    .btn-escalate:hover { background: #92400e; }
+    .btn-dismiss { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+    .btn-dismiss:hover { background: #334155; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #475569; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; margin-bottom: 16px; }
+    .alert-error { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+    .alert-success { background: #14532d; color: #86efac; border: 1px solid #166534; }
+  </style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>FraudShield</h1>
+    <p>ML-powered fraud &amp; risk detection platform</p>
+    <div class="role-buttons">
+      <button class="role-btn user" onclick="login('user@demo.com')">
+        Sign in as User
+        <span class="role-hint">Upload data &bull; View fraud/risk results</span>
+      </button>
+      <button class="role-btn analyst" onclick="login('analyst@demo.com')">
+        Sign in as Analyst
+        <span class="role-hint">Review cases &bull; Record decisions</span>
+      </button>
+      <button class="role-btn admin" onclick="login('admin@demo.com')">
+        Sign in as Admin
+        <span class="role-hint">Full access &bull; All features</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <header>
+    <div style="display:flex;align-items:center;gap:20px">
+      <span class="logo">FraudShield</span>
+      <nav id="main-nav">
+        <button class="nav-btn active" data-panel="dashboard">Dashboard</button>
+        <button class="nav-btn" data-panel="fraud">Fraud Detection</button>
+        <button class="nav-btn" data-panel="risk">Risk Scoring</button>
+        <button class="nav-btn analyst-only" data-panel="cases" style="display:none">Case Review</button>
+      </nav>
+    </div>
+    <div class="user-info">
+      <span id="user-email-display"></span>
+      <span id="role-badge" class="role-badge"></span>
+      <button class="logout-btn" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard -->
+    <div id="panel-dashboard" class="panel active">
+      <h2>Dashboard</h2>
+      <p class="subtitle">Overview of fraud detection and risk scoring activity</p>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="label">Total Cases</div><div class="value" id="stat-total">—</div></div>
+        <div class="stat-card"><div class="label">Open Cases</div><div class="value yellow" id="stat-open">—</div></div>
+        <div class="stat-card"><div class="label">High Risk</div><div class="value red" id="stat-high">—</div></div>
+        <div class="stat-card"><div class="label">Resolved</div><div class="value green" id="stat-closed">—</div></div>
+      </div>
+
+      <div class="action-section">
+        <h3>Quick Start</h3>
+        <p>Run a demo analysis using built-in sample data to see fraud detection and risk scoring in action.</p>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="runQuickDemo()">
+            <span id="demo-loading" style="display:none" class="loading"></span>
+            Run Full Demo
+          </button>
+        </div>
+        <div id="demo-result" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- Fraud Detection -->
+    <div id="panel-fraud" class="panel">
+      <h2>Fraud Detection</h2>
+      <p class="subtitle">Score transactions and detect fraudulent activity with ML-powered analysis</p>
+
+      <div class="action-section">
+        <h3>Score Transactions</h3>
+        <p>Use sample data from our database to run fraud detection, or paste your own transaction JSON below.</p>
+        <div class="btn-group" style="margin-bottom:14px">
+          <button class="btn btn-primary" id="fraud-sample-btn" onclick="runFraudSample()">
+            <span id="fraud-loading" style="display:none" class="loading"></span>
+            Run on Sample Data
+          </button>
+        </div>
+        <div style="margin-top:8px">
+          <p style="font-size:0.8rem;color:#64748b;margin-bottom:6px">Or paste custom transactions (JSON array):</p>
+          <textarea id="fraud-input" placeholder='[{"txn_id":"t001","user_id":"u001","ts":"2026-03-27 10:00:00","amount":250.00,"merchant_cat":"grocery","merchant_id":"m001","city":"New York","country":"US","device_id":"d001"}]'
+            style="width:100%;height:120px;background:#0f172a;border:1px solid #334155;border-radius:6px;padding:10px;color:#e2e8f0;font-size:0.82rem;resize:vertical;font-family:monospace"></textarea>
+          <button class="btn btn-outline" style="margin-top:8px" onclick="runFraudCustom()">Score Custom Data</button>
+        </div>
+      </div>
+
+      <div id="fraud-results" class="results-section"></div>
+    </div>
+
+    <!-- Risk Scoring -->
+    <div id="panel-risk" class="panel">
+      <h2>Risk Scoring</h2>
+      <p class="subtitle">Assess credit and default risk for subjects with explainable ML predictions</p>
+
+      <div class="action-section">
+        <h3>Score Subjects</h3>
+        <p>Evaluate subjects from sample data or provide your own subject profiles.</p>
+        <div class="btn-group" style="margin-bottom:14px">
+          <button class="btn btn-primary" id="risk-sample-btn" onclick="runRiskSample()">
+            <span id="risk-loading" style="display:none" class="loading"></span>
+            Run on Sample Data
+          </button>
+        </div>
+        <div style="margin-top:8px">
+          <p style="font-size:0.8rem;color:#64748b;margin-bottom:6px">Or paste custom subjects (JSON array):</p>
+          <textarea id="risk-input" placeholder='[{"subject_id":"s001","income_monthly":35000,"employment_years":3.5,"credit_history_months":24,"avg_monthly_spend":20000,"late_payments_12m":0}]'
+            style="width:100%;height:120px;background:#0f172a;border:1px solid #334155;border-radius:6px;padding:10px;color:#e2e8f0;font-size:0.82rem;resize:vertical;font-family:monospace"></textarea>
+          <button class="btn btn-outline" style="margin-top:8px" onclick="runRiskCustom()">Score Custom Data</button>
+        </div>
+      </div>
+
+      <div id="risk-results" class="results-section"></div>
+    </div>
+
+    <!-- Cases -->
+    <div id="panel-cases" class="panel">
+      <h2>Case Review</h2>
+      <p class="subtitle">Review flagged transactions and record analyst decisions</p>
+
+      <div class="cases-filters">
+        <button class="filter-btn active" onclick="loadCases('all', this)">All</button>
+        <button class="filter-btn" onclick="loadCases('open', this)">Open</button>
+        <button class="filter-btn" onclick="loadCases('closed', this)">Closed</button>
+      </div>
+
+      <div id="cases-container"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let currentUser = null;
+  let token = null;
+
+  async function login(email) {
+    const res = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Login failed'); return; }
+    currentUser = data.user;
+    token = data.token;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('user-email-display').textContent = currentUser.email;
+    const badge = document.getElementById('role-badge');
+    badge.textContent = currentUser.role;
+    badge.className = 'role-badge ' + currentUser.role;
+    if (['analyst', 'admin'].includes(currentUser.role)) {
+      document.querySelectorAll('.analyst-only').forEach(el => el.style.display = '');
+    }
+    loadStats();
+  }
+
+  function logout() {
+    currentUser = null; token = null;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.querySelectorAll('.analyst-only').forEach(el => el.style.display = 'none');
+  }
+
+  document.getElementById('main-nav').addEventListener('click', e => {
+    const btn = e.target.closest('[data-panel]');
+    if (!btn) return;
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+    if (btn.dataset.panel === 'cases') loadCases('all');
+    if (btn.dataset.panel === 'dashboard') loadStats();
+  });
+
+  async function loadStats() {
+    try {
+      const res = await fetch('/stats', { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      document.getElementById('stat-total').textContent = data.cases.total;
+      document.getElementById('stat-open').textContent = data.cases.open;
+      document.getElementById('stat-high').textContent = data.cases.high_risk;
+      document.getElementById('stat-closed').textContent = data.cases.closed;
+    } catch(e) {}
+  }
+
+  async function runQuickDemo() {
+    const btn = document.querySelector('[onclick="runQuickDemo()"]');
+    btn.disabled = true;
+    document.getElementById('demo-loading').style.display = 'inline-block';
+    document.getElementById('demo-result').innerHTML = '';
+    try {
+      const [fr, rr] = await Promise.all([
+        fetch('/fraud/score', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify({use_sample:true}) }),
+        fetch('/risk/score', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify({use_sample:true}) }),
+      ]);
+      const fd = await fr.json();
+      const rd = await rr.json();
+      document.getElementById('demo-result').innerHTML = `
+        <div class="alert alert-success">
+          Demo complete! Fraud: ${fd.summary.high} high, ${fd.summary.medium} medium, ${fd.summary.low} low risk out of ${fd.summary.total} transactions.
+          Risk: ${rd.summary.high} high, ${rd.summary.medium} medium, ${rd.summary.low} low risk out of ${rd.summary.total} subjects.
+        </div>`;
+      loadStats();
+    } catch(e) {
+      document.getElementById('demo-result').innerHTML = `<div class="alert alert-error">Error: ${e.message}</div>`;
+    }
+    btn.disabled = false;
+    document.getElementById('demo-loading').style.display = 'none';
+  }
+
+  async function scoreFraud(body) {
+    const btn = document.getElementById('fraud-sample-btn');
+    btn.disabled = true;
+    document.getElementById('fraud-loading').style.display = 'inline-block';
+    document.getElementById('fraud-results').innerHTML = '';
+    try {
+      const res = await fetch('/fraud/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      renderFraudResults(data);
+      loadStats();
+    } catch(e) {
+      document.getElementById('fraud-results').innerHTML = `<div class="alert alert-error">Error: ${e.message}</div>`;
+    }
+    btn.disabled = false;
+    document.getElementById('fraud-loading').style.display = 'none';
+  }
+
+  function runFraudSample() { scoreFraud({ use_sample: true }); }
+  function runFraudCustom() {
+    try {
+      const txt = document.getElementById('fraud-input').value.trim();
+      if (!txt) return alert('Please enter transaction data');
+      const transactions = JSON.parse(txt);
+      scoreFraud({ transactions });
+    } catch(e) { alert('Invalid JSON: ' + e.message); }
+  }
+
+  function renderFraudResults(data) {
+    const { results, summary } = data;
+    let html = `<div class="results-header">
+      <h3>Fraud Detection Results</h3>
+      <div class="summary-pills">
+        <span class="pill high">${summary.high} High</span>
+        <span class="pill medium">${summary.medium} Medium</span>
+        <span class="pill low">${summary.low} Low</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th></th><th>Transaction</th><th>Amount</th><th>Location</th><th>Category</th><th>Score</th><th>Band</th></tr></thead>
+      <tbody>`;
+    results.forEach((r, i) => {
+      const exp = r.explanation;
+      html += `<tr>
+        <td><button class="expand-btn" onclick="toggleDetail('fraud-detail-${i}', this)">+</button></td>
+        <td style="font-family:monospace;font-size:0.8rem">${r.txn_id}</td>
+        <td>$${r.amount.toFixed(2)}</td>
+        <td>${r.city}, ${r.country}</td>
+        <td>${r.merchant_cat}</td>
+        <td><div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill ${r.fraud_band}" style="width:${(r.fraud_score*100).toFixed(0)}%"></div></div><span class="score-val">${(r.fraud_score*100).toFixed(0)}%</span></div></td>
+        <td><span class="band-badge ${r.fraud_band}">${r.fraud_band}</span></td>
+      </tr>
+      <tr id="fraud-detail-${i}" style="display:none">
+        <td colspan="7">
+          <div class="explanation-box">
+            <h4>Explanation <span style="font-weight:400;color:#64748b">(confidence: ${(exp.confidence*100).toFixed(0)}%)</span></h4>
+            <p>${exp.human_summary}</p>
+            <div class="reason-tags">
+              <span class="reason-tag ${getSeverity(exp.primary_reason_code, true)}">${exp.primary_reason_code}</span>
+              ${exp.supporting_reasons.map(r => `<span class="reason-tag ${r.severity}">${r.code}</span>`).join('')}
+            </div>
+            <ul class="action-list">${exp.suggested_actions.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('fraud-results').innerHTML = html;
+  }
+
+  async function scoreRisk(body) {
+    const btn = document.getElementById('risk-sample-btn');
+    btn.disabled = true;
+    document.getElementById('risk-loading').style.display = 'inline-block';
+    document.getElementById('risk-results').innerHTML = '';
+    try {
+      const res = await fetch('/risk/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      renderRiskResults(data);
+    } catch(e) {
+      document.getElementById('risk-results').innerHTML = `<div class="alert alert-error">Error: ${e.message}</div>`;
+    }
+    btn.disabled = false;
+    document.getElementById('risk-loading').style.display = 'none';
+  }
+
+  function runRiskSample() { scoreRisk({ use_sample: true }); }
+  function runRiskCustom() {
+    try {
+      const txt = document.getElementById('risk-input').value.trim();
+      if (!txt) return alert('Please enter subject data');
+      const subjects = JSON.parse(txt);
+      scoreRisk({ subjects });
+    } catch(e) { alert('Invalid JSON: ' + e.message); }
+  }
+
+  function renderRiskResults(data) {
+    const { results, summary } = data;
+    let html = `<div class="results-header">
+      <h3>Risk Scoring Results</h3>
+      <div class="summary-pills">
+        <span class="pill high">${summary.high} High</span>
+        <span class="pill medium">${summary.medium} Medium</span>
+        <span class="pill low">${summary.low} Low</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th></th><th>Subject</th><th>Income/mo</th><th>Employment</th><th>Credit History</th><th>Score</th><th>Band</th></tr></thead>
+      <tbody>`;
+    results.forEach((r, i) => {
+      const exp = r.explanation;
+      html += `<tr>
+        <td><button class="expand-btn" onclick="toggleDetail('risk-detail-${i}', this)">+</button></td>
+        <td style="font-family:monospace;font-size:0.8rem">${r.subject_id}</td>
+        <td>$${r.income_monthly.toLocaleString()}</td>
+        <td>${r.employment_years.toFixed(1)} yrs</td>
+        <td>${r.credit_history_months} mo</td>
+        <td><div class="score-bar"><div class="score-bar-track"><div class="score-bar-fill ${r.risk_band}" style="width:${(r.risk_score*100).toFixed(0)}%"></div></div><span class="score-val">${(r.risk_score*100).toFixed(0)}%</span></div></td>
+        <td><span class="band-badge ${r.risk_band}">${r.risk_band}</span></td>
+      </tr>
+      <tr id="risk-detail-${i}" style="display:none">
+        <td colspan="7">
+          <div class="explanation-box">
+            <h4>Explanation <span style="font-weight:400;color:#64748b">(confidence: ${(exp.confidence*100).toFixed(0)}%)</span></h4>
+            <p>${exp.human_summary}</p>
+            <div class="reason-tags">
+              <span class="reason-tag ${getSeverity(exp.primary_reason_code, false)}">${exp.primary_reason_code}</span>
+              ${exp.supporting_reasons.map(r => `<span class="reason-tag ${r.severity}">${r.code}</span>`).join('')}
+            </div>
+            <ul class="action-list">${exp.suggested_actions.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('risk-results').innerHTML = html;
+  }
+
+  function toggleDetail(id, btn) {
+    const row = document.getElementById(id);
+    if (row.style.display === 'none') { row.style.display = ''; btn.textContent = '−'; }
+    else { row.style.display = 'none'; btn.textContent = '+'; }
+  }
+
+  function getSeverity(code, isFraud) {
+    const fraudMap = { FRD_GEO_MISMATCH:'CRITICAL', FRD_DEVICE_FLAGGED:'CRITICAL', FRD_MERCHANT_FLAGGED:'CRITICAL', FRD_VEL_BURST:'HIGH', FRD_AMT_SPIKE:'HIGH', FRD_GEO_JUMP:'HIGH', FRD_VEL_HIGH:'MEDIUM', FRD_AMT_DEVIATION:'MEDIUM', FRD_MERCHANT_NEW:'MEDIUM', FRD_GEO_NEW_CITY:'MEDIUM', FRD_DEVICE_NEW:'LOW' };
+    const riskMap = { RISK_PAYMENT_LATE:'CRITICAL', RISK_INCOME_LOW:'CRITICAL', RISK_SPEND_HIGH:'HIGH', RISK_CREDIT_NEW:'HIGH', RISK_EMPLOYMENT_SHORT:'HIGH', RISK_PROFILE_YOUNG:'MEDIUM', RISK_PAYMENT_CLEAN:'LOW', RISK_CREDIT_CLEAN:'LOW' };
+    return (isFraud ? fraudMap : riskMap)[code] || 'MEDIUM';
+  }
+
+  async function loadCases(status, btn) {
+    if (btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    const url = status === 'all' ? '/cases' : `/cases?status=${status}`;
+    try {
+      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      const data = await res.json();
+      renderCases(data.cases);
+    } catch(e) {
+      document.getElementById('cases-container').innerHTML = `<div class="alert alert-error">Error loading cases: ${e.message}</div>`;
+    }
+  }
+
+  function renderCases(cases) {
+    if (!cases.length) {
+      document.getElementById('cases-container').innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No cases found.</p><p style="font-size:0.82rem;margin-top:6px">Run fraud detection to create cases for flagged transactions.</p></div>`;
+      return;
+    }
+    let html = `<div style="overflow-x:auto"><table>
+      <thead><tr><th></th><th>Case ID</th><th>Transaction</th><th>Fraud Score</th><th>Band</th><th>Status</th><th>Decision</th><th>Created</th></tr></thead>
+      <tbody>`;
+    cases.forEach((c, i) => {
+      html += `<tr>
+        <td><button class="expand-btn" onclick="toggleCase('case-detail-${i}', this)">+</button></td>
+        <td style="font-family:monospace;font-size:0.78rem">${c.id.slice(0,8)}…</td>
+        <td style="font-family:monospace;font-size:0.8rem">${c.txn_id}</td>
+        <td>${c.fraud_score ? (c.fraud_score*100).toFixed(1)+'%' : '—'}</td>
+        <td>${c.fraud_band ? `<span class="band-badge ${c.fraud_band}">${c.fraud_band}</span>` : '—'}</td>
+        <td><span style="padding:2px 8px;border-radius:10px;font-size:0.75rem;background:${c.status==='open'?'#78350f':'#14532d'};color:${c.status==='open'?'#fcd34d':'#86efac'}">${c.status}</span></td>
+        <td>${c.decision ? `<span style="color:#94a3b8">${c.decision}</span>` : '—'}</td>
+        <td style="font-size:0.8rem;color:#64748b">${c.created_at ? c.created_at.slice(0,10) : '—'}</td>
+      </tr>
+      <tr id="case-detail-${i}" style="display:none">
+        <td colspan="8">
+          <div class="explanation-box">
+            ${c.status === 'open' && ['analyst','admin'].includes(currentUser?.role) ? `
+              <h4 style="margin-bottom:12px">Record Decision</h4>
+              <div class="decision-form">
+                <textarea id="notes-${c.id}" placeholder="Add notes (optional)…"></textarea>
+                <div class="decision-btns">
+                  <button class="btn-approve" onclick="recordDecision('${c.id}','approve')">Approve</button>
+                  <button class="btn-escalate" onclick="recordDecision('${c.id}','escalate')">Escalate</button>
+                  <button class="btn-dismiss" onclick="recordDecision('${c.id}','dismiss')">Dismiss</button>
+                </div>
+              </div>` : `
+              <h4>Case Notes</h4>
+              <p>${c.notes || 'No notes recorded.'}</p>
+              ${c.updated_at ? `<p style="font-size:0.78rem;color:#64748b;margin-top:6px">Updated: ${c.updated_at.slice(0,16)}</p>` : ''}`}
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('cases-container').innerHTML = html;
+  }
+
+  function toggleCase(id, btn) {
+    const row = document.getElementById(id);
+    if (row.style.display === 'none') { row.style.display = ''; btn.textContent = '−'; }
+    else { row.style.display = 'none'; btn.textContent = '+'; }
+  }
+
+  async function recordDecision(caseId, decision) {
+    const notes = document.getElementById('notes-' + caseId)?.value || '';
+    try {
+      const res = await fetch(`/cases/${caseId}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ decision, notes })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      loadCases(document.querySelector('.filter-btn.active')?.textContent?.toLowerCase().replace('all','all') || 'all');
+      loadStats();
+    } catch(e) { alert('Error: ' + e.message); }
+  }
+</script>
+</body>
+</html>
