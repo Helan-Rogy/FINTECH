@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: var(--font-inter, 'Inter', system-ui, sans-serif);
-  --font-mono: var(--font-jetbrains-mono, 'JetBrains Mono', monospace);
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --radius: 0.5rem;
 
   /* Core palette — dark finance theme */
