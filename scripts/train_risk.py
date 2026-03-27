@@ -20,6 +20,7 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
     precision_recall_curve,
+    auc,
     f1_score,
     confusion_matrix,
 )
@@ -130,7 +131,7 @@ def train_risk_model(
     
     # PR curve
     precision, recall, pr_thresholds = precision_recall_curve(y_test, y_test_pred_proba)
-    pr_auc = np.trapz(precision, recall)
+    pr_auc = auc(recall, precision)
     
     # ROC curve
     fpr, tpr, roc_thresholds = roc_curve(y_test, y_test_pred_proba)

@@ -1,0 +1,223 @@
+{
+  "fraud_explanation_report_schema": {
+    "description": "JSON schema for fraud prediction explanation reports",
+    "example": {
+      "prediction_id": "fraud_txn_00000001_1774626849.916222",
+      "timestamp": "2026-03-27T21:24:09.916243",
+      "subject_id": "txn_00000001",
+      "model_type": "fraud",
+      "score": 0.85,
+      "band": "high",
+      "confidence": 0.8825,
+      "primary_reason_code": "FRD_GEO_MISMATCH",
+      "supporting_reasons": [
+        {
+          "code": "FRD_VEL_HIGH",
+          "severity": "MEDIUM",
+          "explanation": "5 transactions in 24 hours (baseline: ~1-2 per day)",
+          "metric_value": 5
+        },
+        {
+          "code": "FRD_MERCHANT_NEW",
+          "severity": "MEDIUM",
+          "explanation": "First transaction with this merchant"
+        }
+      ],
+      "human_summary": "Transaction FLAGGED as high fraud risk.\n\nKey concerns:\n- Geographic jump detected - significant location change in <4 hours (physically impossible travel)\n- 5 transactions in 24 hours (baseline: ~1-2 per day)\n- First transaction with this merchant",
+      "suggested_actions": [
+        "URGENT: Contact customer to verify transaction - impossible geographic location",
+        "Verify rapid transaction pattern with customer",
+        "Verify new merchant transaction"
+      ]
+    },
+    "field_definitions": {
+      "prediction_id": {
+        "type": "string",
+        "description": "Unique identifier for this prediction and explanation"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "ISO-8601",
+        "description": "Time when explanation was generated"
+      },
+      "subject_id": {
+        "type": "string",
+        "description": "Transaction ID or entity identifier"
+      },
+      "model_type": {
+        "type": "string",
+        "enum": ["fraud", "risk"],
+        "description": "Type of model that generated the prediction"
+      },
+      "score": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Raw prediction score (0-1)"
+      },
+      "band": {
+        "type": "string",
+        "enum": ["low", "medium", "high"],
+        "description": "Categorical risk band"
+      },
+      "confidence": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Model confidence in this prediction"
+      },
+      "primary_reason_code": {
+        "type": "string",
+        "description": "Most important reason code (highest severity)"
+      },
+      "supporting_reasons": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Reason code identifier"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+              "description": "Severity level of this reason"
+            },
+            "explanation": {
+              "type": "string",
+              "description": "Human-readable explanation of this reason"
+            },
+            "metric_value": {
+              "type": "number",
+              "description": "Optional: numerical value for context"
+            }
+          }
+        },
+        "description": "List of supporting reason codes (top 3)"
+      },
+      "human_summary": {
+        "type": "string",
+        "description": "Human-readable summary suitable for non-technical users"
+      },
+      "suggested_actions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Recommended next steps (1-3 actions)"
+      }
+    }
+  },
+  "risk_explanation_report_schema": {
+    "description": "JSON schema for risk scoring prediction explanation reports",
+    "example": {
+      "prediction_id": "risk_s_000001_1774626850.123456",
+      "timestamp": "2026-03-27T21:24:10.123456",
+      "subject_id": "s_000001",
+      "model_type": "risk",
+      "score": 0.62,
+      "band": "medium",
+      "confidence": 0.8500,
+      "primary_reason_code": "RISK_PAYMENT_LATE",
+      "supporting_reasons": [
+        {
+          "code": "RISK_SPEND_HIGH",
+          "severity": "HIGH",
+          "explanation": "High spending ratio: 0.8 of income spent monthly",
+          "metric_value": 0.8
+        },
+        {
+          "code": "RISK_EMPLOYMENT_SHORT",
+          "severity": "HIGH",
+          "explanation": "Employment tenure 3.5 years (< 2 years threshold)",
+          "metric_value": 3.5
+        }
+      ],
+      "human_summary": "Subject s_000001 assigned moderate credit risk rating.\n\nKey factors:\n- Recent payment issues: 1 late payments in past 12 months\n- High spending ratio: 0.8 of income spent monthly\n- Employment tenure 3.5 years (< 2 years threshold)",
+      "suggested_actions": [
+        "RECOMMEND: Standard underwriting process",
+        "Discuss payment history and resolution",
+        "Review budget and affordability"
+      ]
+    },
+    "field_definitions": {
+      "prediction_id": {
+        "type": "string",
+        "description": "Unique identifier for this prediction and explanation"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "ISO-8601",
+        "description": "Time when explanation was generated"
+      },
+      "subject_id": {
+        "type": "string",
+        "description": "Subject/customer ID"
+      },
+      "model_type": {
+        "type": "string",
+        "enum": ["fraud", "risk"],
+        "description": "Type of model that generated the prediction"
+      },
+      "score": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Predicted probability of default (0-1)"
+      },
+      "band": {
+        "type": "string",
+        "enum": ["low", "medium", "high"],
+        "description": "Categorical risk band"
+      },
+      "confidence": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Model confidence in this prediction"
+      },
+      "primary_reason_code": {
+        "type": "string",
+        "description": "Most important reason code (highest severity)"
+      },
+      "supporting_reasons": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Reason code identifier"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+              "description": "Severity level of this reason"
+            },
+            "explanation": {
+              "type": "string",
+              "description": "Human-readable explanation of this reason"
+            },
+            "metric_value": {
+              "type": "number",
+              "description": "Optional: numerical value for context"
+            }
+          }
+        },
+        "description": "List of supporting reason codes (top 3)"
+      },
+      "human_summary": {
+        "type": "string",
+        "description": "Human-readable summary suitable for non-technical users"
+      },
+      "suggested_actions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Recommended next steps (1-3 actions)"
+      ]
+    }
+  }
+}

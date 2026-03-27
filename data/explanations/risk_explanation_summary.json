@@ -1,0 +1,40 @@
+{
+  "total_subjects": 10000,
+  "high_risk_count": 634,
+  "high_risk_percentage": 6.34,
+  "average_confidence": 0.8505,
+  "top_reason_codes": [
+    [
+      "RISK_PROFILE_YOUNG",
+      5786
+    ],
+    [
+      "RISK_PAYMENT_LATE",
+      4987
+    ],
+    [
+      "RISK_PAYMENT_CLEAN",
+      4721
+    ],
+    [
+      "RISK_EMPLOYMENT_SHORT",
+      3439
+    ],
+    [
+      "RISK_SPEND_HIGH",
+      2932
+    ],
+    [
+      "RISK_INCOME_LOW",
+      2512
+    ],
+    [
+      "RISK_CREDIT_NEW",
+      1553
+    ],
+    [
+      "RISK_CREDIT_CLEAN",
+      173
+    ]
+  ]
+}

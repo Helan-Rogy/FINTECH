@@ -1,0 +1,36 @@
+{
+  "total_transactions": 5000,
+  "high_risk_count": 223,
+  "high_risk_percentage": 4.46,
+  "average_confidence": 0.5985,
+  "top_reason_codes": [
+    [
+      "FRD_MERCHANT_NEW",
+      4846
+    ],
+    [
+      "FRD_DEVICE_NEW",
+      4063
+    ],
+    [
+      "FRD_GEO_NEW_CITY",
+      2657
+    ],
+    [
+      "FRD_VEL_HIGH",
+      2132
+    ],
+    [
+      "FRD_GEO_MISMATCH",
+      2077
+    ],
+    [
+      "FRD_AMT_SPIKE",
+      280
+    ],
+    [
+      "FRD_AMT_DEVIATION",
+      175
+    ]
+  ]
+}
