@@ -6,6 +6,8 @@ import { BandBadge } from "@/components/ui/badge";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { ReasonCard } from "@/components/ui/reason-card";
 import { Loader, Play } from "lucide-react";
+import { AssistantChat } from "@/components/accessibility/assistant-chat";
+import { SimplifiedReport } from "@/components/accessibility/simplified-report";
 
 interface RiskFeatures {
   income_monthly: string;
@@ -189,6 +191,16 @@ export default function RiskScorePage() {
                 ))}
               </ul>
             </div>
+
+            <div className="border-t border-border pt-4">
+              <SimplifiedReport
+                type="risk"
+                riskScore={result.risk_score}
+                riskBand={result.risk_band}
+                humanSummary={result.human_summary}
+                suggestedActions={result.suggested_actions}
+              />
+            </div>
           </div>
         ) : (
           <div className="bg-card border border-border rounded-lg p-5 flex items-center justify-center text-center">
@@ -198,6 +210,15 @@ export default function RiskScorePage() {
           </div>
         )}
       </div>
+
+      <AssistantChat
+        contextType={result ? "risk" : "general"}
+        contextData={result ? {
+          risk_score: result.risk_score,
+          risk_band: result.risk_band,
+          reasons: result.reasons,
+        } : undefined}
+      />
     </>
   );
 }

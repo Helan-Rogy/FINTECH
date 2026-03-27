@@ -7,6 +7,8 @@ import { ScoreGauge } from "@/components/ui/score-gauge";
 import { ReasonCard } from "@/components/ui/reason-card";
 import { formatScore } from "@/lib/utils";
 import { Loader, Plus, Trash2, Play } from "lucide-react";
+import { AssistantChat } from "@/components/accessibility/assistant-chat";
+import { SimplifiedReport } from "@/components/accessibility/simplified-report";
 
 interface TxnInput {
   txn_id: string;
@@ -278,12 +280,34 @@ export default function FraudCheckPage() {
                       ))}
                     </ul>
                   </div>
+
+                  <div className="border-t border-border pt-4">
+                    <SimplifiedReport
+                      type="fraud"
+                      txnId={selectedResult.txn_id}
+                      fraudScore={selectedResult.fraud_score}
+                      fraudBand={selectedResult.fraud_band}
+                      primaryReason={selectedResult.primary_reason}
+                      humanSummary={selectedResult.human_summary}
+                      suggestedActions={selectedResult.suggested_actions}
+                    />
+                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
       </div>
+
+      <AssistantChat
+        contextType={selectedResult ? "fraud" : "general"}
+        contextData={selectedResult ? {
+          txn_id: selectedResult.txn_id,
+          fraud_score: selectedResult.fraud_score,
+          fraud_band: selectedResult.fraud_band,
+          reasons: selectedResult.reasons,
+        } : undefined}
+      />
     </>
   );
 }

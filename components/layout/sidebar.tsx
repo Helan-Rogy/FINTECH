@@ -11,6 +11,7 @@ import {
   Briefcase,
   LogOut,
   Activity,
+  HelpCircle,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -23,6 +24,7 @@ const userNav = [
   { href: "/dashboard/fraud", label: "Fraud Check", icon: ShieldAlert },
   { href: "/dashboard/risk", label: "Risk Score", icon: TrendingUp },
   { href: "/dashboard/reports", label: "Reports", icon: FileText },
+  { href: "/dashboard/assistant", label: "Help Assistant", icon: HelpCircle },
 ];
 
 const analystNav = [
