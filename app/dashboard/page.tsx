@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { PageHeader } from "@/components/layout/page-header";
@@ -7,6 +8,7 @@ import { ShieldAlert, TrendingUp, FileText, ArrowRight } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await getSession();
+  if (!session) redirect("/login");
 
   const [fraudRows, riskRows, reportRows] = await Promise.all([
     sql`SELECT COUNT(*) as count, AVG(fraud_score) as avg_score FROM fraud_predictions WHERE user_id = ${session!.sub}`,

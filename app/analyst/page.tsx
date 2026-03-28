@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/components/layout/page-header";
@@ -6,6 +7,7 @@ import { Briefcase, ArrowRight, AlertTriangle, CheckCircle, Clock } from "lucide
 
 export default async function AnalystOverviewPage() {
   const session = await getSession();
+  if (!session) redirect("/login");
 
   const [caseStats, recentCases] = await Promise.all([
     sql`
