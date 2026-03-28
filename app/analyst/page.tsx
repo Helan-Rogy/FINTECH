@@ -7,7 +7,7 @@ import { Briefcase, ArrowRight, AlertTriangle, CheckCircle, Clock } from "lucide
 
 export default async function AnalystOverviewPage() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) { redirect("/login"); return null; }
 
   const [caseStats, recentCases] = await Promise.all([
     sql`

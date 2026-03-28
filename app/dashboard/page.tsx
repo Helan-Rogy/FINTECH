@@ -8,12 +8,13 @@ import { ShieldAlert, TrendingUp, FileText, ArrowRight } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session) { redirect("/login"); return null; }
 
+  const userId = session.sub;
   const [fraudRows, riskRows, reportRows] = await Promise.all([
-    sql`SELECT COUNT(*) as count, AVG(fraud_score) as avg_score FROM fraud_predictions WHERE user_id = ${session!.sub}`,
-    sql`SELECT COUNT(*) as count, AVG(risk_score) as avg_score FROM risk_predictions WHERE user_id = ${session!.sub}`,
-    sql`SELECT COUNT(*) as count FROM reports WHERE user_id = ${session!.sub}`,
+    sql`SELECT COUNT(*) as count, AVG(fraud_score) as avg_score FROM fraud_predictions WHERE user_id = ${userId}`,
+    sql`SELECT COUNT(*) as count, AVG(risk_score) as avg_score FROM risk_predictions WHERE user_id = ${userId}`,
+    sql`SELECT COUNT(*) as count FROM reports WHERE user_id = ${userId}`,
   ]);
 
   const fraudCount = parseInt(String(fraudRows[0]?.count ?? 0));
