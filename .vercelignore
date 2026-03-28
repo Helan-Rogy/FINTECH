@@ -1,0 +1,8 @@
+scripts/*.py
+scripts/__pycache__
+models/
+data/raw/
+data/processed/
+*.pkl
+*.pyc
+__pycache__/
