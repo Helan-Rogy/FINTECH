@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { sql } from "@/lib/db";
 import { signToken, type UserRole } from "@/lib/auth";
 
